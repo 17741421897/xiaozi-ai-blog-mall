@@ -1,0 +1,98 @@
+{% extends 'baseLayout.html' %}
+{% block pageTitle %}购物车{% endblock %}
+
+{% block content %}
+<div class="py-8 max-w-4xl mx-auto">
+    <div class="flex items-center justify-between mb-8">
+        <h2 class="text-3xl font-bold text-gray-800">我的购物车</h2>
+        <a href="{{ url_for('shopPage') }}" class="text-blue-600 hover:underline">← 继续购物</a>
+    </div>
+
+    {% if items %}
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <table class="w-full text-left">
+            <thead class="bg-gray-50 border-b border-gray-100">
+                <tr>
+                    <th class="px-6 py-4 text-sm font-semibold text-gray-600">商品</th>
+                    <th class="px-6 py-4 text-sm font-semibold text-gray-600">单价</th>
+                    <th class="px-6 py-4 text-sm font-semibold text-gray-600">数量</th>
+                    <th class="px-6 py-4 text-sm font-semibold text-gray-600">小计</th>
+                    <th class="px-6 py-4 text-sm font-semibold text-gray-600">操作</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                {% for item in items %}
+                <tr>
+                    <td class="px-6 py-4">
+                        <div class="flex items-center">
+                            <img src="{{ item.image }}" class="w-12 h-12 object-contain mr-4">
+                            <span class="font-medium text-gray-800">{{ item.name }}</span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 text-gray-600">￥{{ item.price }}</td>
+                    <td class="px-6 py-4 text-gray-600">{{ item.quantity }}</td>
+                    <td class="px-6 py-4 font-bold text-gray-800">￥{{ "%.2f"|format(item.item_total) }}</td>
+                    <td class="px-6 py-4">
+                        <button onclick="removeFromCart({{ item.id }})" class="text-red-500 hover:text-red-700 text-sm">移除</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="p-6 bg-gray-50 flex items-center justify-between">
+            <div class="text-xl text-gray-600">总计金额: <span class="text-3xl font-bold text-blue-600">￥{{ "%.2f"|format(total_price) }}</span></div>
+            <button onclick="checkout()" class="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold transition-all shadow-lg shadow-blue-200">
+                提交订单
+            </button>
+        </div>
+    </div>
+    {% else %}
+    <div class="text-center py-20">
+        <div class="text-6xl mb-4">🛒</div>
+        <p class="text-gray-500 text-xl mb-8">购物车空空如也</p>
+        <a href="{{ url_for('shopPage') }}" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">去逛逛店铺</a>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+async function removeFromCart(productId) {
+    try {
+        const response = await fetch('/cart/remove', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ product_id: productId })
+        });
+        if (response.ok) {
+            location.reload();
+        }
+    } catch (e) {
+        alert('移除失败');
+    }
+}
+
+async function checkout() {
+    try {
+        const response = await fetch('/shop/checkout', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+        const data = await response.json();
+        if (data.success) {
+            alert('订单提交成功！订单号: ' + data.order_id + '\n请在个人中心查看订单状态。');
+            location.href = '/profile';
+        } else {
+            if (response.status === 401) {
+                alert('请先登录后再下单！');
+                location.href = '/login';
+            } else {
+                alert('下单失败: ' + data.message);
+            }
+        }
+    } catch (e) {
+        alert('网络错误，请稍后再试');
+    }
+}
+</script>
+{% endblock %}
