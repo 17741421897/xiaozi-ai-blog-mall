@@ -1,0 +1,60 @@
+{% extends "baseLayout.html" %}
+
+{% block pageTitle %}{{ post.title }} - 我的技术博客{% endblock %}
+
+{% block content %}
+<div class="postDetailPage">
+    <article class="postDetail">
+        <header class="postDetailHeader">
+            <h1 class="postDetailTitle">{{ post.title }}</h1>
+            <div class="postDetailMeta">
+                <span class="metaItem">
+                    <i class="metaIcon">👤</i>
+                    作者：{{ post.author }}
+                </span>
+                <span class="metaItem">
+                    <i class="metaIcon">📅</i>
+                    发布时间：{{ post.publishDate }}
+                </span>
+                <span class="metaItem">
+                    <i class="metaIcon">📁</i>
+                    分类：{{ post.category }}
+                </span>
+                <span class="metaItem">
+                    <i class="metaIcon">⏱️</i>
+                    阅读时间：{{ post.readTime }}
+                </span>
+                <span class="metaItem">
+                    <i class="metaIcon">👁️</i>
+                    阅读量：{{ post.views }}
+                </span>
+            </div>
+        </header>
+
+        <div class="postDetailContent">
+            {{ post.content | safe }}
+        </div>
+
+        <footer class="postDetailFooter">
+            <div class="postDetailTags">
+                <span class="tagsLabel">标签：</span>
+                {% for tag in post.tags.split(',') if tag %}
+                <span class="tagItem">{{ tag }}</span>
+                {% endfor %}
+            </div>
+            <div class="postDetailActions">
+                {% if is_author %}
+                <a href="{{ url_for('delete_post', postId=post.id) }}" 
+                   class="deletePostBtn" 
+                   onclick="return confirm('确定要删除这篇文章吗？删除后无法恢复！')">
+                    🗑️ 删除文章
+                </a>
+                {% endif %}
+                <a href="{{ url_for('indexPage') }}" class="backToListBtn">
+                    ← 返回文章列表
+                </a>
+            </div>
+        </footer>
+    </article>
+</div>
+{% endblock %}

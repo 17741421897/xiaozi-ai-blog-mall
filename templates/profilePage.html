@@ -1,0 +1,234 @@
+{% extends "baseLayout.html" %}
+
+{% block head %}
+{{ super() }}
+<!-- 引入 Bootstrap 5 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+    :root {
+        --primary-color: #4361ee;
+        --primary-hover: #3a56d4;
+        --bg-light: #f8f9fa;
+        --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        --card-shadow-hover: 0 15px 35px rgba(0, 0, 0, 0.1);
+        --ambient-shadow: 0 2px 4px rgba(0,0,0,0.02), 0 10px 20px rgba(0,0,0,0.05);
+    }
+
+    body {
+        background-color: var(--bg-light);
+        color: #333;
+    }
+
+    .profile-banner {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        height: 250px;
+        border-radius: 0 0 30px 30px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .profile-info-card {
+        background: white;
+        border: none !important;
+        border-radius: 24px !important;
+        padding: 2rem 1.5rem;
+        text-align: center;
+        box-shadow: var(--card-shadow) !important;
+        transition: transform 0.3s ease;
+    }
+
+    .profile-avatar-wrapper {
+        margin-bottom: 1.5rem;
+    }
+
+    .profile-avatar {
+        width: 110px;
+        height: 110px;
+        border-radius: 50%;
+        border: 5px solid white;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        object-fit: cover;
+    }
+
+    .profile-name {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #2d3436;
+        margin-bottom: 0.5rem;
+    }
+
+    .profile-bio {
+        font-size: 0.95rem;
+        color: #636e72;
+        line-height: 1.6;
+        margin-bottom: 2rem;
+    }
+
+    .btn-edit {
+        background-color: var(--primary-color) !important;
+        border: none !important;
+        border-radius: 12px !important;
+        padding: 0.6rem 1.2rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .btn-edit:hover {
+        background-color: var(--primary-hover) !important;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
+    }
+
+    .section-header h2 {
+        font-size: 1.75rem;
+        color: #2d3436;
+        position: relative;
+        display: inline-block;
+        margin-top: 0;
+    }
+
+    .section-divider {
+        height: 4px;
+        width: 40px;
+        background: var(--primary-color);
+        border-radius: 2px;
+        margin-top: 8px;
+    }
+
+    .post-card {
+        background: white !important;
+        border: none !important;
+        border-radius: 20px !important;
+        box-shadow: var(--ambient-shadow) !important;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+        padding: 2rem 1.5rem !important;
+    }
+
+    .post-card:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--card-shadow-hover) !important;
+    }
+
+    .post-card-title a {
+        color: #2d3436;
+        font-size: 1.15rem;
+        transition: color 0.2s ease;
+    }
+
+    .post-card-title a:hover {
+        color: var(--primary-color);
+    }
+
+    .post-card-summary {
+        color: #636e72 !important;
+        font-size: 0.9rem !important;
+        line-height: 1.5;
+    }
+
+    .read-more {
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+
+    .read-more:hover {
+        padding-right: 5px;
+        color: var(--primary-hover) !important;
+    }
+
+    .pagination .page-link {
+        border: none;
+        color: #636e72;
+        margin: 0 5px;
+        border-radius: 12px !important;
+        transition: all 0.2s ease;
+        background-color: white;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+
+    .pagination .page-item.active .page-link {
+        background-color: var(--primary-color);
+        box-shadow: 0 4px 10px rgba(67, 97, 238, 0.3);
+    }
+
+    .pagination .page-link:hover {
+        background-color: #e9ecef;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="profile-container container-fluid px-lg-5" style="max-width: 1600px; margin: 0 auto;">
+    <!-- 顶部视觉区域：保持全宽 -->
+    <div class="profile-header-wrapper">
+        <div class="profile-banner"></div>
+    </div>
+
+    <div class="row g-4 mt-n5 align-items-start">
+        <!-- 左侧边栏：个人资料 -->
+        <div class="col-lg-3">
+            <div class="profile-info-card shadow-sm">
+                <div class="profile-avatar-wrapper">
+                    <img src="{{ user.avatar }}" alt="Avatar" class="profile-avatar">
+                </div>
+                <h1 class="profile-name">{{ user.nickname }}</h1>
+                <p class="profile-bio">{{ user.bio }}</p>
+
+                {% if not edit_mode %}
+                    <a href="{{ url_for('edit_profile') }}" class="btn-edit btn btn-primary w-100">编辑资料</a>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- 右侧主内容区：文章列表 -->
+        <div class="col-lg-9">
+            <div class="my-posts-section mt-n2">
+                <div class="section-header mb-4">
+                    <h2 class="fw-bold">我的文章</h2>
+                    <div class="section-divider"></div>
+                </div>
+
+                {% if posts %}
+                    <div class="posts-grid row g-3">
+                        {% for post in posts %}
+                            <div class="col-md-6">
+                                <div class="post-card h-100 shadow-sm p-3 rounded">
+                                    <div class="post-card-title mb-2">
+                                        <a href="{{ url_for('postDetail', postId=post.id) }}" class="text-decoration-none fw-semibold">{{ post.title }}</a>
+                                    </div>
+                                    <p class="post-card-summary text-muted small">{{ post.summary }}</p>
+                                    <div class="post-card-footer d-flex justify-content-between align-items-center mt-auto">
+                                        <span class="post-date small text-secondary">{{ post.date }}</span>
+                                        <a href="{{ url_for('postDetail', postId=post.id) }}" class="read-more small text-primary text-decoration-none">阅读更多 →</a>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- 分页组件 -->
+                    <nav aria-label="Page navigation" class="mt-5">
+                        <ul class="pagination justify-content-center">
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">上一页</a>
+                            </li>
+                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                            <li class="page-item"><a class="page-link" href="#">2</a></li>
+                            <li class="page-item"><a class="page-link" href="#">3</a></li>
+                            <li class="page-item">
+                                <a class="page-link" href="#">下一页</a>
+                            </li>
+                        </ul>
+                    </nav>
+                {% else %}
+                    <div class="emptyState text-center py-5">
+                        <p class="text-muted">你还没有发表过文章，快去分享你的见解吧！</p>
+                        <a href="#" class="btn btn-outline-primary">写一篇文章</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 引入 Bootstrap 5 JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+{% endblock %}
